@@ -18,6 +18,7 @@ y = torch.cat((y0, y1), ).type(torch.LongTensor)  # shape (200,) LongTensor = 64
 # plt.scatter(x.detach()[:, 0], x.detach()[:, 1], c=y.detach(), s=100, lw=0, cmap='RdYlGn')
 # plt.show()
 
+# method 1
 class Net(torch.nn.Module):
     def __init__(self, num_feature, num_hidden, num_output):
         # 继承父类 Net 的所有属性和方法
@@ -32,20 +33,29 @@ class Net(torch.nn.Module):
         return x
 
 
-net = Net(2, 10, 2)
-print(net)
+net1 = Net(2, 10, 2)
+
+# method 2
+net2 = torch.nn.Sequential(
+    torch.nn.Linear(2, 10),
+    torch.nn.ReLU(),
+    torch.nn.Linear(10, 2)
+)
+
+print(net1)
+print(net2)
 
 # 打开 matplotlib 的交互模式使 python 动态显示图片
 plt.ion()
 plt.show()
 
 # 优化神经网络    随机梯度下降，输入要优化的参数，设定学习效率
-optimizer = torch.optim.SGD(net.parameters(), lr=0.02)
+optimizer = torch.optim.SGD(net1.parameters(), lr=0.02)
 
 # 开始训练
 for t in range(100):
     # 训练 100 步，看每一步的 out，这里的 net(x) 调用了 forward 函数
-    out = net(x)
+    out = net2(x)
 
     # 交叉熵损失函数，计算分类问题，计算误差，真实值在后
     loss = F.cross_entropy(out, y)
