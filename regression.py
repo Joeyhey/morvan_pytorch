@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 
 # fake data
 # 在 torch 中数据是有维度的，unsqueeze 把一维数据变成二维数据
@@ -75,4 +75,3 @@ for t in range(100):
 # 关闭交互模式，回到阻塞模式，否则无法 show
 plt.ioff()
 plt.show()
-
