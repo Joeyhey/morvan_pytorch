@@ -75,14 +75,11 @@ plt.figure(1, figsize=(12, 5))
 plt.ion()  # continuously plot
 plt.show()
 
-step = 0
-for i in range(100):
-    dynamic_steps = np.random.randint(1, 4)  # has random time steps
+for step in range(100):
     # 截取了一段距离
-    start, end = step * np.pi, (step + dynamic_steps) * np.pi  # time range
-    step += dynamic_steps
+    start, end = step * np.pi, (step + 1) * np.pi  # time range
     # use sin predicts cos
-    steps = np.linspace(start, end, dynamic_steps, dtype=np.float32,
+    steps = np.linspace(start, end, TIME_STEP, dtype=np.float32,
                         endpoint=False)  # float32 for converting torch FloatTensor
     print("\nlen(steps): ", len(steps))
     x_np = np.sin(steps)
