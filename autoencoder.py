@@ -26,10 +26,10 @@ train_data = torchvision.datasets.MNIST(
 )
 
 # plot one example  第一个例子，图片 28 行 28 列，是个数字 4
-print(train_data.train_data.size())  # (60000, 28, 28)
-print(train_data.train_labels.size())  # (60000)
-plt.imshow(train_data.train_data[2].numpy(), cmap='gray')
-plt.title('%i' % train_data.train_labels[2])
+print(train_data.data.size())  # (60000, 28, 28)
+print(train_data.targets.size())  # (60000)
+plt.imshow(train_data.data[2].numpy(), cmap='gray')
+plt.title('%i' % train_data.targets[2])
 plt.show()
 
 # 自编码只用 training data，生成类似 train_data 的 data 并与 train_data 对比
@@ -78,10 +78,11 @@ plt.ion()  # continuously plot
 
 # 可视化操作
 # original data (first row) for viewing
-view_data = train_data.train_data[:N_TEST_IMG].view(-1, 28 * 28).type(torch.FloatTensor) / 255.
+view_data = train_data.data[:N_TEST_IMG].view(-1, 28 * 28).type(torch.FloatTensor) / 255.
 for i in range(N_TEST_IMG):
-    a[0][i].imshow(np.reshape(view_data.data.numpy()[i], (28, 28)), cmap='gray');
-    a[0][i].set_xticks(());
+    a[0][i].imshow(np.reshape(view_data.data.numpy()[i], (28, 28)), cmap='gray')
+    # Axes.set_xticks() 函数用于设置带有刻度列表的 x 刻度
+    a[0][i].set_xticks(())
     a[0][i].set_yticks(())
 
 for epoch in range(EPOCH):
@@ -118,12 +119,12 @@ plt.show()
 
 # visualize in 3D plot
 # 三维的数据显示
-view_data = train_data.train_data[:200].view(-1, 28 * 28).type(torch.FloatTensor) / 255.
+view_data = train_data.data[:200].view(-1, 28 * 28).type(torch.FloatTensor) / 255.
 encoded_data, _ = autoencoder(view_data)
 fig = plt.figure(2);
 ax = Axes3D(fig)
 X, Y, Z = encoded_data.data[:, 0].numpy(), encoded_data.data[:, 1].numpy(), encoded_data.data[:, 2].numpy()
-values = train_data.train_labels[:200].numpy()
+values = train_data.targets[:200].numpy()
 for x, y, z, s in zip(X, Y, Z, values):
     c = cm.rainbow(int(255 * s / 9));
     ax.text(x, y, z, s, backgroundcolor=c)
