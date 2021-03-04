@@ -1,8 +1,8 @@
+import gym
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-import gym
 
 # hyper parameters
 BATCH_SIZE = 32
@@ -109,6 +109,7 @@ class DQN(object):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
 
 dqn = DQN()
 
