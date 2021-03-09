@@ -33,9 +33,11 @@ train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffl
 # 获取 test data，train 设置为 False
 test_data = torchvision.datasets.MNIST(root='./mnist', train=False)
 # 使一维数据变成二维，后面除以 255 是因为上面的 test_data 实际还是（0，255），加点是浮点型
-test_x = torch.unsqueeze(test_data.data, dim=1).type(torch.FloatTensor)[:2000] / 255.
+# !!!!!!!!gpu 加速!!!!!!!!
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+test_x = torch.unsqueeze(test_data.data, dim=1).type(torch.FloatTensor)[:2000].to(device) / 255.
 # 只取前两千个，节省时间
-test_y = test_data.targets[:2000]
+test_y = test_data.targets[:2000].to(device)
 
 
 # 构建 CNN 网络
@@ -78,6 +80,8 @@ class CNN(nn.Module):
 
 cnn = CNN()
 # print(cnn)
+# !!!!!!!!gpu 加速!!!!!!!!
+cnn.to(device)
 
 # 训练过程
 optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)
@@ -85,8 +89,11 @@ loss_func = nn.CrossEntropyLoss()
 
 for epoch in range(EPOCH):
     # 只有在这个 loop 时才会将 data 压缩成（0，1）
-    for step, (b_x, b_y) in enumerate(train_loader):  # gives batch data, normalize x when iterate train_loader
-
+    for step, (x, y) in enumerate(train_loader):  # gives batch data, normalize x when iterate train_loader
+        # !!!!!!!!gpu 加速!!!!!!!!
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        b_x = x.to(device)
+        b_y = y.to(device)
         output = cnn(b_x)  # cnn output
         loss = loss_func(output, b_y)  # cross entropy loss
         optimizer.zero_grad()  # clear gradients for this training step
@@ -95,7 +102,8 @@ for epoch in range(EPOCH):
 
         if step % 50 == 0:
             test_output = cnn(test_x)
-            pred_y = torch.max(test_output, 1)[1].detach().numpy()
+            # !!!!!!!!gpu 加速!!!!!!!!
+            pred_y = torch.max(test_output, 1)[1].to(device).detach().numpy()
             accuracy = float((pred_y == test_y.detach().numpy()).astype(int).sum()) / float(test_y.size(0))
             print('Epoch: ', epoch, '| train loss: %.4f' % loss.detach().numpy(), '| test accuracy: %.2f' % accuracy)
             # if HAS_SK:
@@ -108,6 +116,9 @@ for epoch in range(EPOCH):
 
 # test data 放前十个数据进去，，再输出预测的数据 pred_y，进行比较
 test_output = cnn(test_x[:10])
-pred_y = torch.max(test_output, 1)[1].detach().numpy()
+# !!!!!!!!gpu 加速!!!!!!!!
+pred_y = torch.max(test_output, 1)[1].to(device).detach().numpy()
+pred_y = pred_y.cpu()
+
 print(pred_y, 'prediction number')
 print(test_y[:10].numpy(), 'real number')
